@@ -1,5 +1,5 @@
 /* ==========================================================================
-   IEDILETA - Core Logic & Wheel Engine
+   IEDILETA - Core Logic & Wheel Engine + Team Splitter
    ========================================================================== */
 
 // --- PRELOADED IMMUTABLE MASTER DATA ---
@@ -94,7 +94,7 @@ const state = {
 
   // Navigation & Current Mode
   currentView: "view-home",
-  currentMode: null, // "GROUPS", "GROUP_MEMBERS", "ALL_MEMBERS"
+  currentMode: null, // "GROUPS", "GROUP_MEMBERS", "ALL_MEMBERS", "CREATE_GROUPS"
   selectedGroupId: null, // For GROUP_MEMBERS mode
 
   // Sound
@@ -104,7 +104,12 @@ const state = {
   currentWheelItems: [], // Objects: { id, label, color, subtitle, type, originalObj }
   currentAngle: 0,
   isSpinning: false,
-  autoRemoveAfterSpin: false
+  autoRemoveAfterSpin: false,
+
+  // Armar Grupos (Team Splitter) State
+  cgNumGroups: 3,
+  cgSelectedParticipantIds: new Set(),
+  cgLastResults: []
 };
 
 // --- AUDIO SYNTHESIZER (Web Audio API) ---
@@ -314,6 +319,205 @@ function setupAllMembersWheelMode() {
   drawWheel();
 }
 
+// --- ARMAR GRUPOS (TEAM SPLITTER) MODE ---
+function setupCreateGroupsView() {
+  state.currentMode = "CREATE_GROUPS";
+
+  // Pre-fill selected participants with all active members
+  const allActive = getAllActiveMembers();
+  state.cgSelectedParticipantIds = new Set(allActive.map(p => p.member.id));
+
+  // Reset steps
+  document.getElementById("cg-config-step").classList.remove("hidden");
+  document.getElementById("cg-results-step").classList.add("hidden");
+
+  renderCgParticipantsList();
+  updateCgSummaryText();
+  showView("view-create-groups");
+}
+
+function renderCgParticipantsList() {
+  const container = document.getElementById("cg-participants-list");
+  container.innerHTML = "";
+
+  MASTER_DATA.forEach(group => {
+    group.members.forEach(member => {
+      // Check if member is available overall
+      const isMActive = !state.manualDisabled.has(member.id) && !state.drawnDisabled.has(member.id) && isGroupActive(group.id);
+      const isSelected = state.cgSelectedParticipantIds.has(member.id);
+
+      const chip = document.createElement("div");
+      chip.className = `cg-member-chip ${isSelected ? 'selected' : ''} ${!isMActive ? 'opacity-50' : ''}`;
+
+      chip.innerHTML = `
+        <div class="cg-member-info">
+          <span class="cg-member-name">${member.name}</span>
+          <span class="cg-member-group" style="color: ${group.color}">${group.name}</span>
+        </div>
+        <span class="cg-chip-check">${isSelected ? '☑' : '☐'}</span>
+      `;
+
+      chip.addEventListener("click", () => {
+        if (state.cgSelectedParticipantIds.has(member.id)) {
+          state.cgSelectedParticipantIds.delete(member.id);
+        } else {
+          state.cgSelectedParticipantIds.add(member.id);
+        }
+        renderCgParticipantsList();
+        updateCgSummaryText();
+      });
+
+      container.appendChild(chip);
+    });
+  });
+}
+
+function updateCgSummaryText() {
+  const count = state.cgSelectedParticipantIds.size;
+  document.getElementById("cg-selected-count-badge").textContent = `${count} elegidos`;
+
+  const numGroups = state.cgNumGroups;
+  const avg = count > 0 ? (count / numGroups).toFixed(1) : 0;
+  document.getElementById("cg-calc-info").textContent = `~${avg} personas por grupo`;
+}
+
+function selectAllCgParticipants() {
+  MASTER_DATA.forEach(g => {
+    g.members.forEach(m => state.cgSelectedParticipantIds.add(m.id));
+  });
+  renderCgParticipantsList();
+  updateCgSummaryText();
+}
+
+function deselectAllCgParticipants() {
+  state.cgSelectedParticipantIds.clear();
+  renderCgParticipantsList();
+  updateCgSummaryText();
+}
+
+function generateRandomGroups() {
+  const selectedIds = Array.from(state.cgSelectedParticipantIds);
+  const numGroups = state.cgNumGroups;
+
+  if (selectedIds.length === 0) {
+    showToast("⚠️ Seleccioná al menos 1 integrante para armar grupos.");
+    return;
+  }
+
+  if (selectedIds.length < numGroups) {
+    showToast(`⚠️ Seleccionaste ${selectedIds.length} personas para ${numGroups} grupos. Reducí la cantidad de grupos.`);
+    return;
+  }
+
+  initAudioContext();
+  playVictorySound();
+
+  // Get full member objects
+  const participants = [];
+  MASTER_DATA.forEach(group => {
+    group.members.forEach(member => {
+      if (state.cgSelectedParticipantIds.has(member.id)) {
+        participants.push({ member, group });
+      }
+    });
+  });
+
+  // Fisher-Yates Random Shuffle
+  for (let i = participants.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [participants[i], participants[j]] = [participants[j], participants[i]];
+  }
+
+  // Distribute into N groups evenly
+  const groupsResult = Array.from({ length: numGroups }, () => []);
+  participants.forEach((item, index) => {
+    const groupIdx = index % numGroups;
+    groupsResult[groupIdx].push(item);
+  });
+
+  state.cgLastResults = groupsResult;
+
+  // Render Result Cards
+  renderCgResultsGrid();
+
+  // Switch view steps
+  document.getElementById("cg-config-step").classList.add("hidden");
+  document.getElementById("cg-results-step").classList.remove("hidden");
+
+  launchConfetti();
+}
+
+function renderCgResultsGrid() {
+  const container = document.getElementById("cg-groups-results-grid");
+  container.innerHTML = "";
+
+  const paletteColors = ["#ff007f", "#7000ff", "#00f0ff", "#ffb703", "#00f5d4", "#ff4d6d", "#9d4edd", "#4cc9f0"];
+
+  state.cgLastResults.forEach((team, idx) => {
+    const cardColor = paletteColors[idx % paletteColors.length];
+
+    const card = document.createElement("div");
+    card.className = "cg-result-group-box";
+    card.style.borderColor = cardColor;
+
+    let membersListHtml = "";
+    team.forEach(item => {
+      membersListHtml += `
+        <li class="cg-result-member-item">
+          <span>${item.member.name}</span>
+          <span class="cg-member-tag-origin" style="color:${item.group.color}">${item.group.name}</span>
+        </li>
+      `;
+    });
+
+    card.innerHTML = `
+      <div class="cg-result-group-title" style="color: ${cardColor}">
+        <span>Grupo ${idx + 1}</span>
+        <span class="badge-count-sm">${team.length} pers.</span>
+      </div>
+      <ul class="cg-result-members-list">
+        ${membersListHtml}
+      </ul>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function copyGroupsToClipboard() {
+  if (!state.cgLastResults || state.cgLastResults.length === 0) return;
+
+  let formattedText = `🎡 GRUPOS ARMADOS POR IEDILETA 🎡\n\n`;
+  state.cgLastResults.forEach((team, idx) => {
+    formattedText += `🔹 GRUPO ${idx + 1} (${team.length} personas):\n`;
+    team.forEach(item => {
+      formattedText += `  • ${item.member.name} (${item.group.name})\n`;
+    });
+    formattedText += `\n`;
+  });
+
+  formattedText += `“Cuando nadie quiere hacerlo, que decida la IediLeta.”`;
+
+  navigator.clipboard.writeText(formattedText).then(() => {
+    showToast("¡Grupos copiados al portapapeles! 📋");
+  }).catch(() => {
+    showToast("Error al copiar. Copialo manualmente.");
+  });
+}
+
+function showToast(message) {
+  const toast = document.getElementById("toast-notification");
+  const msgSpan = document.getElementById("toast-message");
+  if (!toast || !msgSpan) return;
+
+  msgSpan.textContent = message;
+  toast.classList.remove("hidden");
+
+  setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 3000);
+}
+
 // --- RENDER GROUP SELECT GRID ---
 function renderGroupSelectGrid() {
   const container = document.getElementById("group-select-grid");
@@ -364,7 +568,6 @@ function drawWheel() {
   const emptyWarning = document.getElementById("wheel-empty-warning");
 
   if (!items || items.length === 0) {
-    // Empty state rendering
     btnSpin.disabled = true;
     btnSpin.style.opacity = "0.5";
     emptyWarning.classList.remove("hidden");
@@ -390,7 +593,6 @@ function drawWheel() {
     return;
   }
 
-  // Active state
   btnSpin.disabled = state.isSpinning;
   btnSpin.style.opacity = state.isSpinning ? "0.8" : "1";
   emptyWarning.classList.add("hidden");
@@ -406,32 +608,26 @@ function drawWheel() {
     const endAngle = startAngle + sliceAngle;
     const item = items[i];
 
-    // Draw Slice Fill
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.arc(0, 0, radius, startAngle, endAngle);
     ctx.closePath();
 
-    // Use item color or fallback palette
     ctx.fillStyle = item.color || PALETTE_MEMBERS[i % PALETTE_MEMBERS.length];
     ctx.fill();
 
-    // Slice Border
     ctx.strokeStyle = "rgba(10, 10, 20, 0.6)";
     ctx.lineWidth = 3;
     ctx.stroke();
 
-    // Draw Slice Label Text
     ctx.save();
     const midAngle = startAngle + (sliceAngle / 2);
     ctx.rotate(midAngle);
 
-    // Text Alignment & Styling
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#ffffff";
     
-    // Responsive Font size scaling for legibility on phone & proyector
     let fontSize = 24;
     if (numSlices > 6) fontSize = 20;
     if (numSlices > 10) fontSize = 17;
@@ -442,14 +638,12 @@ function drawWheel() {
     ctx.shadowColor = "rgba(0, 0, 0, 0.85)";
     ctx.shadowBlur = 6;
 
-    // Draw main label
     const textRadius = radius - 24;
     ctx.fillText(item.label, textRadius, 0);
 
     ctx.restore();
   }
 
-  // Draw Outer Decorative Ring
   ctx.beginPath();
   ctx.arc(0, 0, radius, 0, 2 * Math.PI);
   ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
@@ -494,18 +688,13 @@ function spinWheel() {
   const numSlices = items.length;
   const sliceAngle = (2 * Math.PI) / numSlices;
 
-  // Pick random winner slice
   const winnerIndex = Math.floor(Math.random() * numSlices);
-  
-  // Pointer is at TOP (angle = 270deg = 1.5 * Math.PI)
   const pointerAngle = 1.5 * Math.PI;
   const winnerSliceCenter = (winnerIndex + 0.5) * sliceAngle;
   
-  // Calculate base target angle (with 5 to 7 full rotations)
   const fullRotations = 5 + Math.floor(Math.random() * 3);
   let targetAngle = state.currentAngle + (fullRotations * 2 * Math.PI);
 
-  // Adjust so winnerSliceCenter aligns exactly under pointerAngle
   const currentNormalized = targetAngle % (2 * Math.PI);
   let offsetNeeded = (pointerAngle - winnerSliceCenter) - currentNormalized;
   
@@ -524,11 +713,9 @@ function spinWheel() {
     const elapsed = now - startTime;
     const progress = Math.min(elapsed / duration, 1);
 
-    // Ease-Out Cubic formula for smooth deceleration physics
     const easeOut = 1 - Math.pow(1 - progress, 3);
     state.currentAngle = startAngle + (totalRotation * easeOut);
 
-    // Detect when slice crosses top pointer to trigger click sound
     const normAngle = (state.currentAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
     const pointerRelative = (pointerAngle - normAngle + 2 * Math.PI) % (2 * Math.PI);
     const currentSliceUnderPointer = Math.floor(pointerRelative / sliceAngle) % numSlices;
@@ -543,7 +730,6 @@ function spinWheel() {
     if (progress < 1) {
       requestAnimationFrame(animate);
     } else {
-      // Spin finished!
       state.isSpinning = false;
       btnSpin.classList.remove("spinning");
       btnSpin.disabled = false;
@@ -559,18 +745,15 @@ function spinWheel() {
 function onWheelSpinComplete(winningItem) {
   playVictorySound();
 
-  // Handle auto-remove option
   let autoRemoved = false;
   if (state.autoRemoveAfterSpin) {
     state.drawnDisabled.add(winningItem.id);
     autoRemoved = true;
   }
 
-  // Show Result Modal
   showResultModal(winningItem, autoRemoved);
   updateHeaderBadges();
 
-  // Refresh wheel data if item was auto-removed
   if (autoRemoved) {
     if (state.currentMode === "GROUPS") setupGroupWheelMode();
     else if (state.currentMode === "GROUP_MEMBERS") setupGroupMemberWheelMode(state.selectedGroupId);
@@ -679,6 +862,7 @@ function closeAvailabilityModal() {
   if (state.currentMode === "GROUPS") setupGroupWheelMode();
   else if (state.currentMode === "GROUP_MEMBERS" && state.selectedGroupId) setupGroupMemberWheelMode(state.selectedGroupId);
   else if (state.currentMode === "ALL_MEMBERS") setupAllMembersWheelMode();
+  else if (state.currentMode === "CREATE_GROUPS") setupCreateGroupsView();
   else if (state.currentView === "view-group-select") renderGroupSelectGrid();
 
   updateHeaderBadges();
@@ -827,6 +1011,7 @@ function initEventListeners() {
     document.getElementById("icon-sound-symbol").textContent = state.isSoundMuted ? "🔇" : "🔊";
   });
 
+  // Home Mode Cards
   document.getElementById("card-mode-groups").addEventListener("click", () => {
     setupGroupWheelMode();
   });
@@ -839,6 +1024,11 @@ function initEventListeners() {
     setupAllMembersWheelMode();
   });
 
+  document.getElementById("card-mode-create-groups").addEventListener("click", () => {
+    setupCreateGroupsView();
+  });
+
+  // Back Buttons
   document.getElementById("btn-back-from-group-select").addEventListener("click", () => {
     showView("view-home");
   });
@@ -851,6 +1041,11 @@ function initEventListeners() {
     }
   });
 
+  document.getElementById("btn-back-from-create-groups").addEventListener("click", () => {
+    showView("view-home");
+  });
+
+  // Wheel Spin Button
   btnSpin.addEventListener("click", spinWheel);
 
   const chkAutoRemove = document.getElementById("chk-auto-remove");
@@ -861,6 +1056,7 @@ function initEventListeners() {
   document.getElementById("btn-restore-drawn").addEventListener("click", restoreDrawnResults);
   document.getElementById("btn-fix-availability").addEventListener("click", openAvailabilityModal);
 
+  // Availability Modal Controls
   document.getElementById("btn-open-availability").addEventListener("click", openAvailabilityModal);
   document.getElementById("btn-close-availability").addEventListener("click", closeAvailabilityModal);
   document.getElementById("btn-done-availability").addEventListener("click", closeAvailabilityModal);
@@ -869,9 +1065,45 @@ function initEventListeners() {
   document.getElementById("btn-avail-disable-all").addEventListener("click", disableAllAvailability);
   document.getElementById("btn-avail-reset").addEventListener("click", resetAvailabilityToDefault);
 
+  // Result Modal Buttons
   document.getElementById("btn-result-close").addEventListener("click", closeResultModal);
   document.getElementById("btn-result-spin-again").addEventListener("click", () => {
     closeResultModal();
     spinWheel();
+  });
+
+  // --- ARMAR GRUPOS CONTROLS ---
+  const inputNumGroups = document.getElementById("input-num-groups");
+  
+  document.getElementById("btn-cg-minus").addEventListener("click", () => {
+    let current = parseInt(inputNumGroups.value, 10) || 3;
+    if (current > 2) {
+      current--;
+      inputNumGroups.value = current;
+      state.cgNumGroups = current;
+      updateCgSummaryText();
+    }
+  });
+
+  document.getElementById("btn-cg-plus").addEventListener("click", () => {
+    let current = parseInt(inputNumGroups.value, 10) || 3;
+    if (current < 10) {
+      current++;
+      inputNumGroups.value = current;
+      state.cgNumGroups = current;
+      updateCgSummaryText();
+    }
+  });
+
+  document.getElementById("btn-cg-select-all").addEventListener("click", selectAllCgParticipants);
+  document.getElementById("btn-cg-deselect-all").addEventListener("click", deselectAllCgParticipants);
+
+  document.getElementById("btn-cg-generate").addEventListener("click", generateRandomGroups);
+  document.getElementById("btn-cg-reshuffle").addEventListener("click", generateRandomGroups);
+  document.getElementById("btn-cg-copy").addEventListener("click", copyGroupsToClipboard);
+
+  document.getElementById("btn-cg-edit-config").addEventListener("click", () => {
+    document.getElementById("cg-config-step").classList.remove("hidden");
+    document.getElementById("cg-results-step").classList.add("hidden");
   });
 }

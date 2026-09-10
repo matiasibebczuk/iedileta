@@ -50,7 +50,7 @@
         <div class="hero-banner">
           <img src="logo.png" alt="IediLeta" class="hero-logo-img">
           <h2>¿Quién se hace cargo?</h2>
-          <p>Seleccioná una de las ruletas para tomar una decisión justa y definitiva.</p>
+          <p>Seleccioná una opción para tomar una decisión justa o armar equipos.</p>
         </div>
 
         <div class="mode-cards-grid">
@@ -91,6 +91,19 @@
               <span class="card-meta" id="meta-all-count">Todos los grupos e Ietzira</span>
             </div>
             <button class="btn-primary card-action">Girar General →</button>
+          </div>
+
+          <!-- Card 4: Armar Grupos Aleatorios -->
+          <div class="mode-card mode-card-highlight" id="card-mode-create-groups" tabindex="0">
+            <div class="card-icon-wrap">
+              <span class="card-icon">🔀</span>
+            </div>
+            <div class="card-content">
+              <h3>Armar Grupos</h3>
+              <p>“Dividí a los madrijim en grupos aleatorios.”</p>
+              <span class="card-meta">División de equipos</span>
+            </div>
+            <button class="btn-primary card-action">Armar Equipos →</button>
           </div>
         </div>
 
@@ -178,6 +191,72 @@
         </div>
       </section>
 
+      <!-- VIEW 4: CREATE GROUPS (RANDOM TEAM SPLITTER) -->
+      <section id="view-create-groups" class="view">
+        <div class="view-header">
+          <button id="btn-back-from-create-groups" class="btn-back">← Volver</button>
+          <div class="view-title-wrap">
+            <h2>Armar Grupos Aleatorios</h2>
+            <p>Seleccioná la cantidad de grupos y elegí quiénes participan en la división.</p>
+          </div>
+        </div>
+
+        <div class="create-groups-container">
+          <!-- Step 1 & Config Box -->
+          <div id="cg-config-step" class="cg-config-card">
+            <div class="cg-config-left">
+              <div class="cg-input-group">
+                <label for="input-num-groups" class="cg-label">Cantidad de grupos:</label>
+                <div class="stepper-wrap">
+                  <button id="btn-cg-minus" class="btn-stepper">-</button>
+                  <input type="number" id="input-num-groups" value="3" min="2" max="10" readonly>
+                  <button id="btn-cg-plus" class="btn-stepper">+</button>
+                </div>
+                <span id="cg-calc-info" class="cg-calc-info">~8 personas por grupo</span>
+              </div>
+
+              <button id="btn-cg-generate" class="btn-primary btn-lg full-width">
+                <span>🔀 DIVIDIR EN GRUPOS</span>
+              </button>
+            </div>
+
+            <!-- Participant Selection Column -->
+            <div class="cg-config-right">
+              <div class="cg-participants-header">
+                <div class="cg-part-title-wrap">
+                  <h3>Integrantes participantes</h3>
+                  <span id="cg-selected-count-badge" class="badge-count">0 elegidos</span>
+                </div>
+                <div class="cg-part-actions">
+                  <button id="btn-cg-select-all" class="btn-secondary btn-sm">☑ Todos</button>
+                  <button id="btn-cg-deselect-all" class="btn-secondary btn-sm">☐ Ninguno</button>
+                </div>
+              </div>
+
+              <div id="cg-participants-list" class="cg-participants-list">
+                <!-- Populated dynamically via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Generated Results Section -->
+          <div id="cg-results-step" class="cg-results-card hidden">
+            <div class="cg-results-header">
+              <h3>🎉 Grupos Armados</h3>
+              <div class="cg-results-actions">
+                <button id="btn-cg-reshuffle" class="btn-primary btn-sm">🔀 Volver a mezclar</button>
+                <button id="btn-cg-copy" class="btn-secondary btn-sm">📋 Copiar texto</button>
+                <button id="btn-cg-edit-config" class="btn-secondary btn-sm">⚙ Cambiar personas</button>
+              </div>
+            </div>
+
+            <div id="cg-groups-results-grid" class="cg-groups-results-grid">
+              <!-- Dynamically populated group cards -->
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <!-- MODAL 1: AVAILABILITY CONFIGURATION -->
@@ -243,6 +322,11 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast-notification" class="toast-notification hidden">
+      <span id="toast-message">Copiado al portapapeles</span>
     </div>
 
   </div>
