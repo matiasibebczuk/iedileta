@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IediLeta - Que decida la IediLeta</title>
+  <!-- Google Fonts for modern punchy typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background decorative elements -->
+  <div class="bg-gradient-overlay"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- Main Container -->
+  <div class="app-container">
+
+    <!-- Header Navigation -->
+    <header class="app-header">
+      <div class="logo-section" id="btn-header-home" role="button" tabindex="0">
+        <div class="logo-badge">🎡</div>
+        <div class="logo-text">
+          <h1 class="brand-title">IEDILETA</h1>
+          <p class="brand-subtitle">“Cuando nadie quiere hacerlo, que decida la IediLeta.”</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-sound-toggle" class="btn-icon" title="Activar/Silenciar Sonido" aria-label="Activar o silenciar sonido">
+          <span class="icon-sound" id="icon-sound-symbol">🔊</span>
+        </button>
+        <button id="btn-open-availability" class="btn-secondary btn-header-config">
+          <span>⚙ Disponibilidad</span>
+          <span id="badge-active-count" class="badge-count">--/--</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN VIEWS -->
+    <main class="main-content">
+
+      <!-- VIEW 1: HOME (MODE SELECTOR) -->
+      <section id="view-home" class="view view-active">
+        <div class="hero-banner">
+          <h2>¿Quién se hace cargo?</h2>
+          <p>Seleccioná una de las ruletas para tomar una decisión justa y definitiva.</p>
+        </div>
+
+        <div class="mode-cards-grid">
+          <!-- Card 1: Grupos -->
+          <div class="mode-card" id="card-mode-groups" tabindex="0">
+            <div class="card-icon-wrap">
+              <span class="card-icon">🎡</span>
+            </div>
+            <div class="card-content">
+              <h3>Grupos</h3>
+              <p>“Que decida qué grupo lo hace.”</p>
+              <span class="card-meta" id="meta-groups-count">6 grupos disponibles</span>
+            </div>
+            <button class="btn-primary card-action">Elegir Grupos →</button>
+          </div>
+
+          <!-- Card 2: Madrijim de un Grupo -->
+          <div class="mode-card" id="card-mode-group-members" tabindex="0">
+            <div class="card-icon-wrap">
+              <span class="card-icon">👤</span>
+            </div>
+            <div class="card-content">
+              <h3>Madrijim de un grupo</h3>
+              <p>“Elegí quién se hace cargo dentro del grupo.”</p>
+              <span class="card-meta" id="meta-group-select">Seleccionar grupo</span>
+            </div>
+            <button class="btn-primary card-action">Elegir por Grupo →</button>
+          </div>
+
+          <!-- Card 3: Todos los Madrijim -->
+          <div class="mode-card" id="card-mode-all-members" tabindex="0">
+            <div class="card-icon-wrap">
+              <span class="card-icon">👥</span>
+            </div>
+            <div class="card-content">
+              <h3>Todos los madrijim</h3>
+              <p>“Que la IediLeta decida entre todos.”</p>
+              <span class="card-meta" id="meta-all-count">Todos los grupos e Ietzira</span>
+            </div>
+            <button class="btn-primary card-action">Girar General →</button>
+          </div>
+        </div>
+
+        <!-- Home Quick Footer -->
+        <div class="home-footer-info">
+          <div class="info-pill">
+            <span class="info-icon">⚡</span>
+            <span>Leitza • Jokrim • Nitza • Jolma • Nesha • Ietzira</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: GROUP SELECTOR FOR MEMBER WHEEL -->
+      <section id="view-group-select" class="view">
+        <div class="view-header">
+          <button id="btn-back-from-group-select" class="btn-back">← Volver</button>
+          <div class="view-title-wrap">
+            <h2>Elegí un grupo</h2>
+            <p>Seleccioná el grupo del cual querés sortear un integrante.</p>
+          </div>
+        </div>
+
+        <div id="group-select-grid" class="group-select-grid">
+          <!-- Dynamic group selection cards generated via JS -->
+        </div>
+      </section>
+
+      <!-- VIEW 3: WHEEL STAGE -->
+      <section id="view-wheel-stage" class="view">
+        <div class="view-header">
+          <button id="btn-back-from-wheel" class="btn-back">← Volver</button>
+          <div class="view-title-wrap">
+            <h2 id="wheel-stage-title">Ruleta de Grupos</h2>
+            <p id="wheel-stage-subtitle">Girá para decidir quién se hace cargo.</p>
+          </div>
+        </div>
+
+        <!-- Wheel Canvas & Pointer Stage -->
+        <div class="wheel-stage-layout">
+          <div class="wheel-container-wrapper">
+            <!-- Indicator Pin -->
+            <div class="wheel-pointer-container">
+              <div class="wheel-pointer">▼</div>
+            </div>
+
+            <!-- Canvas Element -->
+            <div class="canvas-aspect-wrapper">
+              <canvas id="wheel-canvas" width="600" height="600"></canvas>
+              <!-- Center Spin Button -->
+              <button id="btn-spin" class="btn-spin-center">
+                <span>GIRAR</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Wheel Controls & Settings Bar -->
+          <div class="wheel-options-bar">
+            <div class="option-toggle-wrap">
+              <label class="custom-checkbox">
+                <input type="checkbox" id="chk-auto-remove">
+                <span class="checkmark"></span>
+                <span class="label-text">Sacar resultado después de elegir</span>
+              </label>
+              <p class="option-hint">Desactiva temporalmente a quien sale para no repetirlo en el siguiente giro.</p>
+            </div>
+
+            <div class="options-actions">
+              <button id="btn-restore-drawn" class="btn-secondary btn-sm" title="Volver a incluir los elementos eliminados por giro">
+                <span>↩ Restaurar elegidos</span>
+                <span id="badge-drawn-count" class="badge-count-sm">0</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Empty State Warning Banner -->
+          <div id="wheel-empty-warning" class="empty-state-banner hidden">
+            <span class="warning-icon">⚠️</span>
+            <div class="warning-text">
+              <strong id="empty-warning-title">No hay opciones disponibles</strong>
+              <p id="empty-warning-desc">Revisá el menú de Disponibilidad (⚙) para activar grupos o personas.</p>
+            </div>
+            <button id="btn-fix-availability" class="btn-primary btn-sm">Configurar Disponibilidad</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- MODAL 1: AVAILABILITY CONFIGURATION -->
+    <div id="modal-availability" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="availability-title">
+      <div class="modal-box modal-lg">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-icon">⚙</span>
+            <div>
+              <h2 id="availability-title">Configuración de Disponibilidad</h2>
+              <p>Activá o desactivá grupos y madrijim para adaptar las ruletas en tiempo real.</p>
+            </div>
+          </div>
+          <button id="btn-close-availability" class="btn-close-modal" aria-label="Cerrar modal">✕</button>
+        </div>
+
+        <!-- Quick Controls Toolbar -->
+        <div class="availability-toolbar">
+          <div class="toolbar-buttons">
+            <button id="btn-avail-enable-all" class="btn-secondary btn-sm">☑ Activar todos</button>
+            <button id="btn-avail-disable-all" class="btn-secondary btn-sm">☐ Desactivar todos</button>
+            <button id="btn-avail-reset" class="btn-secondary btn-sm">🔄 Restaurar por defecto</button>
+          </div>
+          <div id="avail-status-summary" class="status-summary-text">
+            -- grupos y -- madrijim activos
+          </div>
+        </div>
+
+        <!-- Accordion / Grid of Groups & Members -->
+        <div id="availability-groups-list" class="availability-groups-list">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="modal-footer">
+          <button id="btn-done-availability" class="btn-primary full-width">Listo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: WINNER / RESULT CELEBRATION -->
+    <div id="modal-result" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+      <div class="modal-box modal-result-box">
+        <div class="result-confetti-canvas-wrap">
+          <canvas id="confetti-canvas"></canvas>
+        </div>
+
+        <div class="result-content">
+          <span class="result-badge-label">LA IEDILETA DECIDIÓ</span>
+          <div class="result-winner-wrap">
+            <h2 id="result-winner-name" class="result-winner-name">¡LEITZA!</h2>
+            <span id="result-winner-group" class="result-winner-group hidden">Grupo: Leitza</span>
+          </div>
+          <p class="result-phrase">Le toca hacerse cargo. ¡Sin vueltas!</p>
+
+          <div id="result-auto-removed-tag" class="removed-status-tag hidden">
+            <span>✓ Retirado temporalmente para el próximo giro</span>
+          </div>
+
+          <div class="result-actions">
+            <button id="btn-result-spin-again" class="btn-primary btn-lg">Girar de nuevo 🎡</button>
+            <button id="btn-result-close" class="btn-secondary btn-lg">Aceptar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
