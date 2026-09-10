@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IediLeta - Que decida la IediLeta</title>
+  <link rel="icon" type="image/png" href="logo.png">
   <!-- Google Fonts for modern punchy typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,7 +24,7 @@
     <!-- Header Navigation -->
     <header class="app-header">
       <div class="logo-section" id="btn-header-home" role="button" tabindex="0">
-        <div class="logo-badge">🎡</div>
+        <img src="logo.png" alt="IediLeta Logo" class="logo-img-header">
         <div class="logo-text">
           <h1 class="brand-title">IEDILETA</h1>
           <p class="brand-subtitle">“Cuando nadie quiere hacerlo, que decida la IediLeta.”</p>
@@ -47,6 +48,7 @@
       <!-- VIEW 1: HOME (MODE SELECTOR) -->
       <section id="view-home" class="view view-active">
         <div class="hero-banner">
+          <img src="logo.png" alt="IediLeta" class="hero-logo-img">
           <h2>¿Quién se hace cargo?</h2>
           <p>Seleccioná una de las ruletas para tomar una decisión justa y definitiva.</p>
         </div>
@@ -139,7 +141,8 @@
               <canvas id="wheel-canvas" width="600" height="600"></canvas>
               <!-- Center Spin Button -->
               <button id="btn-spin" class="btn-spin-center">
-                <span>GIRAR</span>
+                <img src="logo.png" alt="Logo" class="spin-center-logo">
+                <span class="spin-text-label">GIRAR</span>
               </button>
             </div>
           </div>
@@ -222,6 +225,7 @@
         </div>
 
         <div class="result-content">
+          <img src="logo.png" alt="Logo" class="result-logo-header">
           <span class="result-badge-label">LA IEDILETA DECIDIÓ</span>
           <div class="result-winner-wrap">
             <h2 id="result-winner-name" class="result-winner-name">¡LEITZA!</h2>
