@@ -225,6 +225,12 @@ document.addEventListener("DOMContentLoaded", () => {
   initEventListeners();
   updateHeaderBadges();
   showView("view-home");
+
+  window.addEventListener("resize", () => {
+    if (state.currentView === "view-wheel-stage") {
+      drawWheel();
+    }
+  });
 });
 
 // --- NAVIGATION & VIEWS ---
@@ -425,18 +431,19 @@ function drawWheel() {
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#ffffff";
     
-    // Scale font size based on slice count
-    let fontSize = 22;
-    if (numSlices > 12) fontSize = 16;
-    if (numSlices > 20) fontSize = 13;
-    if (numSlices > 28) fontSize = 11;
+    // Responsive Font size scaling for legibility on phone & proyector
+    let fontSize = 24;
+    if (numSlices > 6) fontSize = 20;
+    if (numSlices > 10) fontSize = 17;
+    if (numSlices > 16) fontSize = 14;
+    if (numSlices > 24) fontSize = 12;
 
     ctx.font = `bold ${fontSize}px Outfit, sans-serif`;
-    ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+    ctx.shadowColor = "rgba(0, 0, 0, 0.85)";
     ctx.shadowBlur = 6;
 
     // Draw main label
-    const textRadius = radius - 25;
+    const textRadius = radius - 24;
     ctx.fillText(item.label, textRadius, 0);
 
     ctx.restore();
@@ -490,9 +497,8 @@ function spinWheel() {
   // Pick random winner slice
   const winnerIndex = Math.floor(Math.random() * numSlices);
   
-  // Pointer is at TOP (angle = 270deg = 1.5 * Math.PI or -Math.PI / 2)
-  // Target position for slice index i: pointerAngle - (i + 0.5)*sliceAngle
-  const pointerAngle = 1.5 * Math.PI; // 270 degrees
+  // Pointer is at TOP (angle = 270deg = 1.5 * Math.PI)
+  const pointerAngle = 1.5 * Math.PI;
   const winnerSliceCenter = (winnerIndex + 0.5) * sliceAngle;
   
   // Calculate base target angle (with 5 to 7 full rotations)
@@ -500,18 +506,16 @@ function spinWheel() {
   let targetAngle = state.currentAngle + (fullRotations * 2 * Math.PI);
 
   // Adjust so winnerSliceCenter aligns exactly under pointerAngle
-  // currentAngle % 2PI + winnerSliceCenter === pointerAngle
   const currentNormalized = targetAngle % (2 * Math.PI);
   let offsetNeeded = (pointerAngle - winnerSliceCenter) - currentNormalized;
   
-  // Normalize offset to range [0, 2PI)
   while (offsetNeeded < 0) offsetNeeded += 2 * Math.PI;
   
   const finalTargetAngle = targetAngle + offsetNeeded;
   const startAngle = state.currentAngle;
   const totalRotation = finalTargetAngle - startAngle;
 
-  const duration = 4500 + Math.random() * 1000; // 4.5 to 5.5 seconds
+  const duration = 4500 + Math.random() * 1000;
   const startTime = performance.now();
 
   lastSliceIndex = -1;
@@ -640,7 +644,7 @@ function launchConfetti() {
     particles.forEach(p => {
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.35; // Gravity
+      p.vy += 0.35;
       p.rotation += p.rSpeed;
       p.opacity -= 0.008;
 
@@ -672,7 +676,6 @@ function openAvailabilityModal() {
 function closeAvailabilityModal() {
   document.getElementById("modal-availability").classList.add("hidden");
   
-  // Refresh active wheel upon closing availability dialog
   if (state.currentMode === "GROUPS") setupGroupWheelMode();
   else if (state.currentMode === "GROUP_MEMBERS" && state.selectedGroupId) setupGroupMemberWheelMode(state.selectedGroupId);
   else if (state.currentMode === "ALL_MEMBERS") setupAllMembersWheelMode();
@@ -697,7 +700,6 @@ function renderAvailabilityGroupsList() {
     group.members.forEach(member => {
       const isMManuallyActive = !state.manualDisabled.has(member.id);
       const isMDrawnDisabled = state.drawnDisabled.has(member.id);
-      const isMActive = isMManuallyActive && !isMDrawnDisabled;
 
       membersHtml += `
         <div class="avail-member-item ${isMDrawnDisabled ? 'drawn-off' : ''}">
@@ -727,30 +729,25 @@ function renderAvailabilityGroupsList() {
       </div>
     `;
 
-    // Event listeners for group switch
     const groupSwitch = groupCard.querySelector(`input[data-group-id="${group.id}"]`);
     groupSwitch.addEventListener("change", (e) => {
       const enabled = e.target.checked;
       if (enabled) {
         state.manualDisabled.delete(group.id);
-        // Also enable all its members
         group.members.forEach(m => state.manualDisabled.delete(m.id));
       } else {
         state.manualDisabled.add(group.id);
-        // Also disable all its members
         group.members.forEach(m => state.manualDisabled.add(m.id));
       }
       renderAvailabilityGroupsList();
       updateHeaderBadges();
     });
 
-    // Event listeners for member switches
     groupCard.querySelectorAll('input[data-member-id]').forEach(memSwitch => {
       memSwitch.addEventListener("change", (e) => {
         const memId = e.target.getAttribute("data-member-id");
         if (e.target.checked) {
           state.manualDisabled.delete(memId);
-          // If group was manually disabled, re-enable group
           state.manualDisabled.delete(group.id);
         } else {
           state.manualDisabled.add(memId);
@@ -802,20 +799,17 @@ function restoreDrawnResults() {
 function updateHeaderBadges() {
   const counts = getTotalActiveCounts();
   
-  // Header badge
   const headerBadge = document.getElementById("badge-active-count");
   if (headerBadge) {
     headerBadge.textContent = `${counts.activeMembers}/${counts.totalMembers}`;
   }
 
-  // Home card metas
   const metaGroups = document.getElementById("meta-groups-count");
   if (metaGroups) metaGroups.textContent = `${counts.activeGroups} de ${counts.totalGroups} grupos disponibles`;
 
   const metaAll = document.getElementById("meta-all-count");
   if (metaAll) metaAll.textContent = `${counts.activeMembers} de ${counts.totalMembers} madrijim disponibles`;
 
-  // Drawn badge
   const drawnBadge = document.getElementById("badge-drawn-count");
   if (drawnBadge) {
     drawnBadge.textContent = state.drawnDisabled.size;
@@ -824,18 +818,15 @@ function updateHeaderBadges() {
 
 // --- EVENT LISTENERS ---
 function initEventListeners() {
-  // Navigation Logo -> Home
   document.getElementById("btn-header-home").addEventListener("click", () => {
     showView("view-home");
   });
 
-  // Sound Toggle
   document.getElementById("btn-sound-toggle").addEventListener("click", () => {
     state.isSoundMuted = !state.isSoundMuted;
     document.getElementById("icon-sound-symbol").textContent = state.isSoundMuted ? "🔇" : "🔊";
   });
 
-  // Home Mode Cards
   document.getElementById("card-mode-groups").addEventListener("click", () => {
     setupGroupWheelMode();
   });
@@ -848,7 +839,6 @@ function initEventListeners() {
     setupAllMembersWheelMode();
   });
 
-  // Back Buttons
   document.getElementById("btn-back-from-group-select").addEventListener("click", () => {
     showView("view-home");
   });
@@ -861,22 +851,16 @@ function initEventListeners() {
     }
   });
 
-  // Wheel Spin Button
   btnSpin.addEventListener("click", spinWheel);
 
-  // Auto-remove Checkbox
   const chkAutoRemove = document.getElementById("chk-auto-remove");
   chkAutoRemove.addEventListener("change", (e) => {
     state.autoRemoveAfterSpin = e.target.checked;
   });
 
-  // Restore Drawn Button
   document.getElementById("btn-restore-drawn").addEventListener("click", restoreDrawnResults);
-
-  // Empty state fix button
   document.getElementById("btn-fix-availability").addEventListener("click", openAvailabilityModal);
 
-  // Availability Modal Controls
   document.getElementById("btn-open-availability").addEventListener("click", openAvailabilityModal);
   document.getElementById("btn-close-availability").addEventListener("click", closeAvailabilityModal);
   document.getElementById("btn-done-availability").addEventListener("click", closeAvailabilityModal);
@@ -885,7 +869,6 @@ function initEventListeners() {
   document.getElementById("btn-avail-disable-all").addEventListener("click", disableAllAvailability);
   document.getElementById("btn-avail-reset").addEventListener("click", resetAvailabilityToDefault);
 
-  // Result Modal Buttons
   document.getElementById("btn-result-close").addEventListener("click", closeResultModal);
   document.getElementById("btn-result-spin-again").addEventListener("click", () => {
     closeResultModal();

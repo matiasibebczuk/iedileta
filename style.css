@@ -1,5 +1,5 @@
 /* ==========================================================================
-   IEDILETA - Modern Vibrant Theme for Proyector & Mobile
+   IEDILETA - Modern Vibrant Theme (Projector High-Contrast & Mobile Responsive)
    ========================================================================== */
 
 :root {
@@ -37,6 +37,13 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  touch-action: manipulation;
 }
 
 body {
@@ -69,16 +76,16 @@ body {
 }
 
 .bg-glow-1 {
-  width: 500px;
-  height: 500px;
+  width: min(500px, 80vw);
+  height: min(500px, 80vw);
   background: #7000ff;
   top: -100px;
   left: -100px;
 }
 
 .bg-glow-2 {
-  width: 600px;
-  height: 600px;
+  width: min(600px, 90vw);
+  height: min(600px, 90vw);
   background: #ff007f;
   bottom: -200px;
   right: -100px;
@@ -102,15 +109,17 @@ body {
   padding: 0.8rem 0;
   border-bottom: 1px solid var(--border-color);
   margin-bottom: 1.5rem;
+  gap: 1rem;
 }
 
 .logo-section {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
+  gap: 0.8rem;
   cursor: pointer;
   user-select: none;
   transition: transform 0.2s ease;
+  min-width: 0;
 }
 
 .logo-section:hover {
@@ -124,28 +133,38 @@ body {
   object-fit: cover;
   border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow: 0 0 20px rgba(138, 43, 226, 0.4);
+  flex-shrink: 0;
+}
+
+.logo-text {
+  min-width: 0;
 }
 
 .brand-title {
-  font-size: 1.9rem;
+  font-size: clamp(1.4rem, 4vw, 1.9rem);
   font-weight: 900;
   letter-spacing: 1.5px;
   background: linear-gradient(90deg, #ffffff 0%, #d8b4fe 50%, var(--accent-cyan) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1.1;
+  white-space: nowrap;
 }
 
 .brand-subtitle {
-  font-size: 0.85rem;
+  font-size: clamp(0.75rem, 2vw, 0.85rem);
   color: var(--text-muted);
   font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.6rem;
+  flex-shrink: 0;
 }
 
 /* Buttons */
@@ -159,6 +178,7 @@ button {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 44px; /* Touch friendly minimum height */
 }
 
 .btn-primary {
@@ -205,6 +225,7 @@ button {
   border-radius: var(--radius-md);
   font-size: 1.2rem;
   color: #fff;
+  flex-shrink: 0;
 }
 
 .btn-icon:hover {
@@ -220,6 +241,7 @@ button {
   border-radius: var(--radius-sm);
   font-weight: 600;
   font-size: 0.95rem;
+  flex-shrink: 0;
 }
 
 .btn-back:hover {
@@ -228,15 +250,17 @@ button {
 }
 
 .btn-sm {
-  padding: 0.5rem 0.9rem;
+  padding: 0.55rem 0.95rem;
   font-size: 0.88rem;
   border-radius: var(--radius-sm);
+  min-height: 38px;
 }
 
 .btn-lg {
   padding: 0.9rem 2rem;
   font-size: 1.15rem;
   border-radius: var(--radius-md);
+  min-height: 52px;
 }
 
 .badge-count {
@@ -285,18 +309,18 @@ button {
 .view-header {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
 .view-title-wrap h2 {
-  font-size: 1.6rem;
+  font-size: clamp(1.3rem, 4vw, 1.6rem);
   font-weight: 800;
 }
 
 .view-title-wrap p {
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: clamp(0.8rem, 2.5vw, 0.9rem);
 }
 
 /* Home View & Hero */
@@ -309,8 +333,8 @@ button {
 }
 
 .hero-logo-img {
-  width: 120px;
-  height: 120px;
+  width: clamp(90px, 20vw, 130px);
+  height: clamp(90px, 20vw, 130px);
   border-radius: 24px;
   object-fit: cover;
   border: 2px solid rgba(255, 255, 255, 0.25);
@@ -324,22 +348,22 @@ button {
 }
 
 .hero-banner h2 {
-  font-size: 2.2rem;
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
   font-weight: 900;
   margin-bottom: 0.4rem;
   letter-spacing: -0.5px;
 }
 
 .hero-banner p {
-  font-size: 1.1rem;
+  font-size: clamp(0.95rem, 3vw, 1.15rem);
   color: var(--text-sub);
 }
 
 /* Mode Cards Grid */
 .mode-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.2rem;
   margin-bottom: 2rem;
 }
 
@@ -347,7 +371,7 @@ button {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 1.8rem;
+  padding: 1.6rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -381,28 +405,28 @@ button {
 }
 
 .card-icon-wrap {
-  width: 58px;
-  height: 58px;
+  width: 54px;
+  height: 54px;
   border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  margin-bottom: 1.2rem;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
 }
 
 .card-content h3 {
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   font-weight: 800;
   margin-bottom: 0.3rem;
 }
 
 .card-content p {
   color: var(--text-sub);
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
+  font-size: 0.92rem;
+  margin-bottom: 0.8rem;
 }
 
 .card-meta {
@@ -410,7 +434,7 @@ button {
   font-size: 0.8rem;
   color: var(--accent-cyan);
   font-family: var(--font-code);
-  margin-bottom: 1.4rem;
+  margin-bottom: 1.2rem;
 }
 
 .card-action {
@@ -421,25 +445,26 @@ button {
 .home-footer-info {
   display: flex;
   justify-content: center;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 .info-pill {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-color);
-  padding: 0.6rem 1.4rem;
+  padding: 0.6rem 1.2rem;
   border-radius: 30px;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  text-align: center;
 }
 
 /* Group Selection Grid */
 .group-select-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.2rem;
   margin-bottom: 2rem;
 }
@@ -454,6 +479,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  min-height: 120px;
 }
 
 .group-select-card:hover {
@@ -507,7 +533,7 @@ button {
 .wheel-container-wrapper {
   position: relative;
   width: 100%;
-  max-width: 540px;
+  max-width: min(540px, 92vw);
   margin: 0 auto 1.5rem auto;
   display: flex;
   flex-direction: column;
@@ -524,7 +550,7 @@ button {
 }
 
 .wheel-pointer {
-  font-size: 2.4rem;
+  font-size: clamp(2rem, 5vw, 2.5rem);
   color: var(--accent-gold);
   line-height: 1;
   text-shadow: 0 0 10px rgba(255, 183, 3, 0.8);
@@ -536,7 +562,7 @@ button {
   padding-top: 100%; /* 1:1 Aspect Ratio */
   border-radius: 50%;
   box-shadow: 0 0 45px rgba(0, 0, 0, 0.7), 0 0 30px rgba(138, 43, 226, 0.3);
-  border: 6px solid rgba(255, 255, 255, 0.15);
+  border: 5px solid rgba(255, 255, 255, 0.15);
   background: rgba(10, 10, 20, 0.9);
 }
 
@@ -554,8 +580,8 @@ button {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 115px;
-  height: 115px;
+  width: clamp(80px, 22vw, 115px);
+  height: clamp(80px, 22vw, 115px);
   border-radius: 50%;
   background: linear-gradient(135deg, #ff007f 0%, #7000ff 100%);
   color: #fff;
@@ -573,17 +599,18 @@ button {
 }
 
 .spin-center-logo {
-  width: 44px;
-  height: 44px;
+  width: clamp(28px, 8vw, 44px);
+  height: clamp(28px, 8vw, 44px);
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
 }
 
 .spin-text-label {
   font-weight: 900;
-  font-size: 1.05rem;
+  font-size: clamp(0.75rem, 2.5vw, 1.05rem);
   letter-spacing: 1px;
 }
 
@@ -614,7 +641,7 @@ button {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 1.2rem 1.6rem;
+  padding: 1.2rem 1.4rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -636,6 +663,7 @@ button {
   user-select: none;
   font-weight: 700;
   font-size: 0.95rem;
+  min-height: 40px;
 }
 
 .custom-checkbox input {
@@ -653,6 +681,7 @@ button {
   border-radius: 6px;
   transition: all 0.2s ease;
   position: relative;
+  flex-shrink: 0;
 }
 
 .custom-checkbox:hover input ~ .checkmark {
@@ -703,6 +732,7 @@ button {
 
 .warning-icon {
   font-size: 1.8rem;
+  flex-shrink: 0;
 }
 
 .warning-text {
@@ -745,7 +775,7 @@ button {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), var(--shadow-glow);
   width: 100%;
   max-width: 540px;
-  max-height: 90vh;
+  max-height: 92vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -762,7 +792,7 @@ button {
 }
 
 .modal-header {
-  padding: 1.4rem 1.8rem;
+  padding: 1.2rem 1.4rem;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
@@ -772,20 +802,20 @@ button {
 .modal-title-group {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
+  gap: 0.8rem;
 }
 
 .modal-icon {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
 }
 
 .modal-header h2 {
-  font-size: 1.3rem;
+  font-size: clamp(1.1rem, 3.5vw, 1.3rem);
   font-weight: 800;
 }
 
 .modal-header p {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
 }
 
@@ -795,6 +825,7 @@ button {
   font-size: 1.4rem;
   padding: 0.3rem 0.6rem;
   border-radius: var(--radius-sm);
+  min-height: 38px;
 }
 
 .btn-close-modal:hover {
@@ -804,19 +835,20 @@ button {
 
 /* Availability Modal Specifics */
 .availability-toolbar {
-  padding: 1rem 1.8rem;
+  padding: 0.8rem 1.4rem;
   background: rgba(255, 255, 255, 0.02);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.8rem;
+  gap: 0.6rem;
 }
 
 .toolbar-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
 .status-summary-text {
@@ -826,19 +858,19 @@ button {
 }
 
 .availability-groups-list {
-  padding: 1.4rem 1.8rem;
+  padding: 1.2rem 1.4rem;
   overflow-y: auto;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1rem;
 }
 
 .avail-group-card {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 1rem 1.2rem;
+  padding: 0.9rem 1.1rem;
 }
 
 .avail-group-card.disabled-group {
@@ -850,13 +882,13 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 0.8rem;
+  padding-bottom: 0.7rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.7rem;
 }
 
 .avail-group-title {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -865,7 +897,7 @@ button {
 
 .avail-members-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 0.6rem;
 }
 
@@ -873,10 +905,11 @@ button {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
-  padding: 0.5rem 0.8rem;
+  padding: 0.45rem 0.7rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-height: 40px;
 }
 
 .avail-member-item.drawn-off {
@@ -885,7 +918,7 @@ button {
 }
 
 .avail-member-name {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
@@ -904,6 +937,7 @@ button {
   display: inline-block;
   width: 44px;
   height: 24px;
+  flex-shrink: 0;
 }
 
 .switch input {
@@ -943,7 +977,7 @@ input:checked + .slider:before {
 }
 
 .modal-footer {
-  padding: 1.2rem 1.8rem;
+  padding: 1rem 1.4rem;
   border-top: 1px solid var(--border-color);
   background: rgba(0, 0, 0, 0.2);
 }
@@ -963,13 +997,13 @@ input:checked + .slider:before {
 }
 
 .result-logo-header {
-  width: 85px;
-  height: 85px;
+  width: clamp(65px, 16vw, 85px);
+  height: clamp(65px, 16vw, 85px);
   border-radius: 20px;
   object-fit: cover;
   border: 2px solid rgba(255, 255, 255, 0.4);
   box-shadow: 0 0 25px rgba(138, 43, 226, 0.6);
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 
 .result-confetti-canvas-wrap {
@@ -985,7 +1019,7 @@ input:checked + .slider:before {
 }
 
 .result-content {
-  padding: 2.5rem 2rem 2rem 2rem;
+  padding: 2.2rem 1.5rem 1.8rem 1.5rem;
   position: relative;
   z-index: 3;
   display: flex;
@@ -994,7 +1028,7 @@ input:checked + .slider:before {
 }
 
 .result-badge-label {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-family: var(--font-code);
   font-weight: 700;
   letter-spacing: 2px;
@@ -1003,15 +1037,16 @@ input:checked + .slider:before {
   border: 1px solid rgba(0, 240, 255, 0.3);
   padding: 0.3rem 0.9rem;
   border-radius: 20px;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 
 .result-winner-wrap {
   margin-bottom: 0.8rem;
+  width: 100%;
 }
 
 .result-winner-name {
-  font-size: 3.2rem;
+  font-size: clamp(2.2rem, 8vw, 3.5rem);
   font-weight: 900;
   line-height: 1.1;
   background: linear-gradient(135deg, #ffffff 0%, var(--accent-gold) 100%);
@@ -1023,31 +1058,31 @@ input:checked + .slider:before {
 
 .result-winner-group {
   display: inline-block;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--text-sub);
   margin-top: 0.3rem;
   font-weight: 600;
 }
 
 .result-phrase {
-  font-size: 1.1rem;
+  font-size: clamp(0.95rem, 3vw, 1.1rem);
   color: var(--text-muted);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
 }
 
 .removed-status-tag {
   background: rgba(255, 183, 3, 0.15);
   border: 1px solid rgba(255, 183, 3, 0.4);
   color: var(--accent-gold);
-  font-size: 0.85rem;
-  padding: 0.4rem 1rem;
+  font-size: 0.82rem;
+  padding: 0.4rem 0.9rem;
   border-radius: var(--radius-sm);
-  margin-bottom: 1.8rem;
+  margin-bottom: 1.4rem;
 }
 
 .result-actions {
   display: flex;
-  gap: 1rem;
+  gap: 0.8rem;
   width: 100%;
 }
 
@@ -1055,44 +1090,76 @@ input:checked + .slider:before {
   flex: 1;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+/* RESPONSIVE MEDIA QUERIES FOR PHONES & SMALL SCREENS */
+@media (max-width: 600px) {
   .app-container {
-    padding: 0.8rem 1rem;
+    padding: 0.6rem 0.8rem;
   }
 
-  .brand-title {
-    font-size: 1.5rem;
+  .app-header {
+    margin-bottom: 1rem;
   }
 
   .brand-subtitle {
-    display: none;
+    display: none; /* Hide subtitle on phone headers to keep header compact */
   }
 
-  .hero-banner h2 {
-    font-size: 1.7rem;
+  .logo-img-header {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+  }
+
+  .btn-header-config {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
   }
 
   .mode-cards-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .mode-card {
+    padding: 1.3rem;
   }
 
   .wheel-options-bar {
     flex-direction: column;
     align-items: stretch;
     gap: 0.8rem;
+    padding: 1rem 1.2rem;
   }
 
   .options-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: stretch;
   }
 
-  .result-winner-name {
-    font-size: 2.4rem;
+  .options-actions button {
+    width: 100%;
   }
 
   .result-actions {
     flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .avail-members-grid {
+    grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+  }
+}
+
+@media (max-width: 380px) {
+  .btn-header-config span:first-child {
+    display: none; /* Only show badge icon on super small screens */
+  }
+
+  .btn-header-config::before {
+    content: "⚙ ";
+  }
+
+  .avail-members-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }
