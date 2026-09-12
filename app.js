@@ -1076,7 +1076,7 @@ function initEventListeners() {
   const inputNumGroups = document.getElementById("input-num-groups");
   
   document.getElementById("btn-cg-minus").addEventListener("click", () => {
-    let current = parseInt(inputNumGroups.value, 10) || 3;
+    let current = parseInt(inputNumGroups.value, 14) || 3;
     if (current > 2) {
       current--;
       inputNumGroups.value = current;
@@ -1086,8 +1086,8 @@ function initEventListeners() {
   });
 
   document.getElementById("btn-cg-plus").addEventListener("click", () => {
-    let current = parseInt(inputNumGroups.value, 10) || 3;
-    if (current < 10) {
+    let current = parseInt(inputNumGroups.value, 14) || 3;
+    if (current < 14) {
       current++;
       inputNumGroups.value = current;
       state.cgNumGroups = current;
