@@ -1073,27 +1073,29 @@ function initEventListeners() {
   });
 
   // --- ARMAR GRUPOS CONTROLS ---
-  const inputNumGroups = document.getElementById("input-num-groups");
-  
-  document.getElementById("btn-cg-minus").addEventListener("click", () => {
-    let current = parseInt(inputNumGroups.value, 14) || 3;
-    if (current > 2) {
-      current--;
-      inputNumGroups.value = current;
-      state.cgNumGroups = current;
-      updateCgSummaryText();
-    }
-  });
+const inputNumGroups = document.getElementById("input-num-groups");
 
-  document.getElementById("btn-cg-plus").addEventListener("click", () => {
-    let current = parseInt(inputNumGroups.value, 14) || 3;
-    if (current < 14) {
-      current++;
-      inputNumGroups.value = current;
-      state.cgNumGroups = current;
-      updateCgSummaryText();
-    }
-  });
+document.getElementById("btn-cg-minus").addEventListener("click", () => {
+  let current = parseInt(inputNumGroups.value, 10) || 3;
+
+  if (current > 2) {
+    current--;
+    inputNumGroups.value = current;
+    state.cgNumGroups = current;
+    updateCgSummaryText();
+  }
+});
+
+document.getElementById("btn-cg-plus").addEventListener("click", () => {
+  let current = parseInt(inputNumGroups.value, 10) || 3;
+
+  if (current < 14) {
+    current++;
+    inputNumGroups.value = current;
+    state.cgNumGroups = current;
+    updateCgSummaryText();
+  }
+});
 
   document.getElementById("btn-cg-select-all").addEventListener("click", selectAllCgParticipants);
   document.getElementById("btn-cg-deselect-all").addEventListener("click", deselectAllCgParticipants);
